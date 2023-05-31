@@ -19,8 +19,8 @@ export class RouteSearch {
         var r = await this.db.find(this.opts.from, this.opts.to, {
             class: this.opts.class,
             directOnly: this.opts.direct,
-            dateStart: new Date(this.opts.startDate),
-            dateEnd: new Date(this.opts.endDate)
+            dateStart: this.opts.startDate ? new Date(this.opts.startDate) : undefined,
+            dateEnd: this.opts.endDate ? new Date(this.opts.endDate) : undefined,
         })
         console.log("num results: ", r.length)
         printAvailabilities(r, this.opts.class)
@@ -32,6 +32,6 @@ export interface RouteSearchOptions {
     from: string[]
     to: string[]
     direct: boolean
-    startDate: string
-    endDate: string
+    startDate?: string
+    endDate?: string
 }

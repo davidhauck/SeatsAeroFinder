@@ -33,6 +33,9 @@ export interface Availability {
     Source: string
     ComputedLastSeen: string
     APITermsOfUse: string
+
+    // Custom
+    CombinedDates?: Date[]
 }
 
 interface Route {

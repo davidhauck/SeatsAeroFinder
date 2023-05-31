@@ -1,5 +1,6 @@
 import { Availability } from "./types";
 import Table from 'cli-table'
+import { toYMD } from "./util.js";
 
 const aliases: any = {
     "From": "Route.OriginAirport",
@@ -33,6 +34,13 @@ export function printAvailabilities(as: Availability[], classes: string[]) {
     for (const a of as) {
         const obj = []
         for (const c of cols) {
+            if (c == "Date") {
+                if (a.CombinedDates && a.CombinedDates.length > 0) {
+                    obj.push(a.CombinedDates.map(d => toYMD(d)).join(","))
+                    continue
+                }
+            }
+
             let currObj = <any>a
             let unaliasedC = c
             if (aliases.hasOwnProperty(c)) {
