@@ -47,6 +47,7 @@ export class TripSearch {
     }
 
     async find() {
+        const start = Date.now()
         const destinations = new Map<string, AirportStop>()
         for (const t of this.opts.to) {
             const parts = t.split(':')
@@ -81,6 +82,8 @@ export class TripSearch {
         for (const r of results) {
             printAvailabilities(r, this.opts.class)
         }
+        const end = Date.now()
+        console.log("Time: ", end - start)
     }
 
     async findNextLeg(currentAirport: string, nextAirports: Map<string, AirportStop>, currentDate: Date, minDaysStay?: number, maxDaysStay?: number): Promise<Availability[][]> {
