@@ -70,7 +70,7 @@ export class TripSearch {
             results.push(...trips)
         }
 
-        sortResults(results)
+        sortResults(results, this.opts.class, this.opts.direct)
 
         this.collapseResults(results)
 

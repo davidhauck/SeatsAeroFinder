@@ -13,10 +13,38 @@ export function newDateWithoutTime() {
 }
 
 
-export function sortResults(results: Availability[][], reverse: boolean = false) {
-    results.sort((a, b) => {
-        var aTotal = a.reduce((acc, curr) => acc + Number(curr.JMileageCost), 0)
-        var bTotal = b.reduce((acc, curr) => acc + Number(curr.JMileageCost), 0)
+export function sortResults(results: Availability[][], classes: string[], directOnly: boolean, reverse: boolean = false) {
+    results.sort((first, second) => {
+        let result = 0
+        for (const f of farePriorityList) {
+            if (!classes.includes(f)) {
+                continue
+            }
+            let firstCount = 0
+            for (const a of first) {
+                const mc = (<any>a)[f + "MileageCost"]
+                const dir = (<any>a)[f + "Direct"]
+                if (mc && mc != "0" && (!directOnly || dir)) {
+                    firstCount++
+                }
+            }
+            let secondCount = 0
+            for (const a of second) {
+                const mc = (<any>a)[f + "MileageCost"]
+                const dir = (<any>a)[f + "Direct"]
+                if (mc && mc != "0" && (!directOnly || dir)) {
+                    secondCount++
+                }
+            }
+
+            if (firstCount != secondCount) {
+                result = firstCount - secondCount
+                return reverse ? -result : result
+            }
+        }
+
+        var aTotal = first.reduce((acc, curr) => acc + Number(curr.JMileageCost), 0)
+        var bTotal = second.reduce((acc, curr) => acc + Number(curr.JMileageCost), 0)
         if (reverse) {
             return aTotal - bTotal
         }
@@ -24,16 +52,18 @@ export function sortResults(results: Availability[][], reverse: boolean = false)
     })
 }
 
-export function priceSummary(as: Availability[], classes: string[]): string {
+export function priceSummary(as: Availability[], directOnly: boolean, classes: string[]): string {
     let toRet = ""
     for (const a of as) {
         for (const f of farePriorityList) {
             const mc = (<any>a)[f + "MileageCost"]
-            if (!classes.includes(f) || !mc || mc == "0") {
+            const dir = (<any>a)[f + "Direct"]
+            if (!classes.includes(f) || !mc || mc == "0" || (directOnly && !dir)) {
                 continue
             }
 
-            toRet += mc + "/" + f + "/" + a.Source + " : "
+            toRet += mc + "/" + f + "/" + a.Source + " - "
+            break
         }
     }
     return toRet.substring(0, toRet.length - 3)

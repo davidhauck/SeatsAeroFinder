@@ -35,7 +35,6 @@ export class Explore {
 
         if (this.opts.excludeAirports) {
             for (const ea of this.opts.excludeAirports) {
-                console.log("adding filter: ", ea)
                 await this.db.addGlobalFilter({ type: FilterType.ExcludeAirport, value: ea })
             }
         }
@@ -46,7 +45,7 @@ export class Explore {
             results.push(...options)
         }
 
-        sortResults(results, true)
+        sortResults(results, this.opts.class, true)
         const exploreResults = this.collapseResults(results)
 
         printExploreResults(exploreResults)
@@ -59,7 +58,8 @@ export class Explore {
         const rs: Availability[][] = structuredClone(results)
         while (rs.length > 0) {
             const dates = []
-            const route = rs.splice(0, 1)[0]
+            // Take the last one since the array is reverse sorted and best flights are last
+            const route = rs.splice(rs.length - 1, 1)[0]
             const itin = this.getItineraryForAvailabilities(route)
             dates.push(route[0].Date)
 
@@ -82,10 +82,10 @@ export class Explore {
                 }
             }
 
-            toRet.push({
+            toRet.unshift({
                 possibleDates: _.uniq(dates).sort(),
                 visitedAirports: itin,
-                examplePrice: priceSummary(route, this.opts.class),
+                examplePrice: priceSummary(route, this.opts.direct, this.opts.class),
             })
         }
 
