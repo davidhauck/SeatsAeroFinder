@@ -168,16 +168,16 @@ export class Database {
     }
 
     containsService(a: Availability, classes: string[], directOnly?: boolean): boolean {
-        if (classes.includes("Y") && a.YMileageCost > 0 && (!directOnly || a.YDirect)) {
+        if (classes.includes("Y") && Number.parseInt(a.YMileageCost) > 0 && (!directOnly || a.YDirect)) {
             return true
         }
-        if (classes.includes("W") && a.WMileageCost > 0 && (!directOnly || a.WDirect)) {
+        if (classes.includes("W") && Number.parseInt(a.WMileageCost) > 0 && (!directOnly || a.WDirect)) {
             return true
         }
-        if (classes.includes("J") && a.JMileageCost > 0 && (!directOnly || a.JDirect)) {
+        if (classes.includes("J") && Number.parseInt(a.JMileageCost) > 0 && (!directOnly || a.JDirect)) {
             return true
         }
-        if (classes.includes("F") && a.FMileageCost > 0 && (!directOnly || a.FDirect)) {
+        if (classes.includes("F") && Number.parseInt(a.FMileageCost) > 0 && (!directOnly || a.FDirect)) {
             return true
         }
         return false

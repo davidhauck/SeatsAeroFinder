@@ -1,5 +1,6 @@
-import { Availability, Route } from "./types"
+import { Availability, Route } from "./types.js"
 import { deserialize, serialize } from "v8";
+import { farePriorityList } from "./constants.js";
 
 export const structuredClone = (obj: any) => {
     return deserialize(serialize(obj));
@@ -12,44 +13,30 @@ export function newDateWithoutTime() {
 }
 
 
-export function sortResults(results: Availability[][]) {
+export function sortResults(results: Availability[][], reverse: boolean = false) {
     results.sort((a, b) => {
         var aTotal = a.reduce((acc, curr) => acc + Number(curr.JMileageCost), 0)
         var bTotal = b.reduce((acc, curr) => acc + Number(curr.JMileageCost), 0)
+        if (reverse) {
+            return aTotal - bTotal
+        }
         return bTotal - aTotal
     })
 }
 
-export interface ItineraryPrice {
-    Y: Number
-    J: Number
-    F: Number
-    W: Number
-}
-
-
-export interface ExploreResult {
-    visitedAirports: string[]
-    possibleDates: string[]
-}
-
-export function priceItinerary(as: Availability[]): ItineraryPrice {
-    let sumY = 0
-    let sumJ = 0
-    let sumF = 0
-    let sumW = 0
+export function priceSummary(as: Availability[], classes: string[]): string {
+    let toRet = ""
     for (const a of as) {
-        sumY += a.YMileageCost
-        sumJ += a.JMileageCost
-        sumF += a.FMileageCost
-        sumW += a.WMileageCost
+        for (const f of farePriorityList) {
+            const mc = (<any>a)[f + "MileageCost"]
+            if (!classes.includes(f) || !mc || mc == "0") {
+                continue
+            }
+
+            toRet += mc + "/" + f + "/" + a.Source + " : "
+        }
     }
-    return {
-        F: sumF,
-        J: sumJ,
-        W: sumW,
-        Y: sumY,
-    }
+    return toRet.substring(0, toRet.length - 3)
 }
 
 export function newAvailability(a: NewAvailabilityArgs): Availability {
@@ -60,13 +47,13 @@ export function newAvailability(a: NewAvailabilityArgs): Availability {
         FAirlines: a.FAirlines ?? "",
         FAvailable: a.FAvailable ?? false,
         FDirect: a.FDirect ?? false,
-        FMileageCost: a.FMileageCost ?? 0,
+        FMileageCost: a.FMileageCost ?? "0",
         FRemainingSeats: a.FRemainingSeats ?? 0,
         ID: a.ID ?? "",
         JAirlines: a.JAirlines ?? "",
         JAvailable: a.JAvailable ?? false,
         JDirect: a.JDirect ?? false,
-        JMileageCost: a.JMileageCost ?? 0,
+        JMileageCost: a.JMileageCost ?? "0",
         JRemainingSeats: a.JRemainingSeats ?? 0,
         ParsedDate: a.ParsedDate ?? "",
         Route: a.Route ?? {
@@ -85,12 +72,12 @@ export function newAvailability(a: NewAvailabilityArgs): Availability {
         WAirlines: a.WAirlines ?? "",
         WAvailable: a.WAvailable ?? false,
         WDirect: a.WDirect ?? false,
-        WMileageCost: a.WMileageCost ?? 0,
+        WMileageCost: a.WMileageCost ?? "0",
         WRemainingSeats: a.WRemainingSeats ?? 0,
         YAirlines: a.YAirlines ?? "",
         YAvailable: a.YAvailable ?? false,
         YDirect: a.YDirect ?? false,
-        YMileageCost: a.YMileageCost ?? 0,
+        YMileageCost: a.YMileageCost ?? "0",
         YRemainingSeats: a.YRemainingSeats ?? 0,
 
         CombinedDates: new Array<Date>(),
@@ -134,10 +121,10 @@ interface NewAvailabilityArgs {
     JAvailable?: boolean
     FAvailable?: boolean
 
-    YMileageCost?: number
-    WMileageCost?: number
-    JMileageCost?: number
-    FMileageCost?: number
+    YMileageCost?: string
+    WMileageCost?: string
+    JMileageCost?: string
+    FMileageCost?: string
 
     YRemainingSeats?: number
     WRemainingSeats?: number

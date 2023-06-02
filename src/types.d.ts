@@ -10,10 +10,10 @@ export interface Availability {
     JAvailable: boolean
     FAvailable: boolean
 
-    YMileageCost: number
-    WMileageCost: number
-    JMileageCost: number
-    FMileageCost: number
+    YMileageCost: string
+    WMileageCost: string
+    JMileageCost: string
+    FMileageCost: string
 
     YRemainingSeats: number
     WRemainingSeats: number
@@ -48,4 +48,11 @@ interface Route {
     Distance: number
     Source: string
     AutoCreated: boolean
+}
+
+
+interface ExploreResult {
+    visitedAirports: string[]
+    possibleDates: string[]
+    examplePrice: string
 }

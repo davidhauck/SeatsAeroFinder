@@ -1,6 +1,6 @@
-import { Availability } from "./types";
+import { Availability, ExploreResult } from "./types";
 import Table from 'cli-table'
-import { ExploreResult, toYMD } from "./util.js";
+import { toYMD } from "./util.js";
 
 const aliases: any = {
     "From": "Route.OriginAirport",
@@ -64,7 +64,7 @@ export function printAvailabilities(as: Availability[], classes: string[]) {
 }
 
 export function printExploreResults(ers: ExploreResult[]) {
-    var cols: string[] = ["Itinerary", "Dates"]
+    var cols: string[] = ["Itinerary", "Dates", "Example Price"]
 
     var table = new Table({
         head: cols,
@@ -82,6 +82,7 @@ export function printExploreResults(ers: ExploreResult[]) {
 
         toAdd.push(er.visitedAirports.join("-"))
         toAdd.push(er.possibleDates.join("  "))
+        toAdd.push(er.examplePrice)
         table.push(toAdd)
     }
 

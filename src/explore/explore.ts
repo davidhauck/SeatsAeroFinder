@@ -2,8 +2,8 @@ import _ from "lodash"
 import { addDays } from "../constants.js"
 import { Database } from "../db/db.js"
 import { printAvailabilities, printExploreResults } from "../output.js"
-import { Availability } from "../types.js"
-import { ExploreResult, newDateWithoutTime, sortResults, structuredClone } from "../util.js"
+import { Availability, ExploreResult } from "../types.js"
+import { newDateWithoutTime, priceSummary, sortResults, structuredClone } from "../util.js"
 
 export class Explore {
     db: Database
@@ -23,7 +23,15 @@ export class Explore {
     }
 
     async explore() {
-        const numDestinations = 2
+        let numDestinations = 1
+        if (!this.opts.numDestinations) {
+            numDestinations = 1
+        } else {
+            numDestinations = Number.parseInt(this.opts.numDestinations)
+            if (numDestinations <= 0) {
+                numDestinations = 1
+            }
+        }
 
         const results: Availability[][] = []
         for (const f of this.opts.from) {
@@ -31,6 +39,7 @@ export class Explore {
             results.push(...options)
         }
 
+        sortResults(results, true)
         const exploreResults = this.collapseResults(results)
 
         printExploreResults(exploreResults)
@@ -43,7 +52,6 @@ export class Explore {
         const rs: Availability[][] = structuredClone(results)
         while (rs.length > 0) {
             const dates = []
-            const prices = []
             const route = rs.splice(0, 1)[0]
             const itin = this.getItineraryForAvailabilities(route)
             dates.push(route[0].Date)
@@ -70,6 +78,7 @@ export class Explore {
             toRet.push({
                 possibleDates: _.uniq(dates).sort(),
                 visitedAirports: itin,
+                examplePrice: priceSummary(route, this.opts.class),
             })
         }
 
@@ -104,6 +113,12 @@ export class Explore {
 
 
         const possibleNextLegs = await this.db.findAllLeavingAirport(currentAirport, findOptions)
+        for (let i = 0; i < possibleNextLegs.length; i++) {
+            if (this.opts.ignoreRegions.includes(possibleNextLegs[i].Route.DestinationRegion)) {
+                possibleNextLegs.splice(i, 1)
+                i--
+            }
+        }
 
         for (const l of possibleNextLegs) {
             const nextLegs = await this.findNextDestination(l.Route.DestinationAirport, numDestinationsLeft - 1, new Date(l.Date), this.minDaysStay, this.maxDaysStay)
@@ -128,6 +143,8 @@ export interface ExploreOptions {
     from: string[]
     direct: boolean
     nonPointSegments: string[]
+    ignoreRegions: string[]
+    numDestinations?: string
     minDaysStay?: string
     maxDaysStay?: string
 }
