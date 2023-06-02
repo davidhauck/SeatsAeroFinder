@@ -17,6 +17,7 @@
   },
   "scripts": {
     "routesearch": "ts-node-esm src/index.ts routesearch",
-    "tripsearch": "ts-node-esm src/index.ts tripsearch"
+    "tripsearch": "ts-node-esm src/index.ts tripsearch",
+    "explore": "ts-node-esm src/index.ts explore"
   }
 }

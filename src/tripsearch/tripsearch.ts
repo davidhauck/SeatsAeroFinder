@@ -2,12 +2,7 @@ import { addDays } from "../constants.js";
 import { Database } from "../db/db.js";
 import { printAvailabilities } from "../output.js";
 import { Availability } from "../types.js";
-import { compareAvail, newAvailability, newDateWithoutTime, toYMD } from "../util.js";
-import { deserialize, serialize } from "v8";
-
-const structuredClone = (obj: any) => {
-    return deserialize(serialize(obj));
-};
+import { compareAvail, newAvailability, newDateWithoutTime, sortResults, structuredClone, toYMD } from "../util.js";
 
 export class TripSearch {
     db: Database
@@ -75,7 +70,7 @@ export class TripSearch {
             results.push(...trips)
         }
 
-        this.sortResults(results)
+        sortResults(results)
 
         this.collapseResults(results)
 
@@ -103,7 +98,7 @@ export class TripSearch {
 
         // If at a leaf node, find all return routes back to an original airport.
         if (nextAirports.size == 0) {
-            const rs = await this.db.find([currentAirport], this.opts.from, findOptions)
+            const rs = await this.db.findRoute([currentAirport], this.opts.from, findOptions)
             for (const r of rs) {
                 toRet.push([r])
             }
@@ -111,7 +106,7 @@ export class TripSearch {
         }
 
         // Find all routes from the currnt location to any of the next locations.
-        const rs = await this.db.find([currentAirport], Array.from(nextAirports.keys()), findOptions)
+        const rs = await this.db.findRoute([currentAirport], Array.from(nextAirports.keys()), findOptions)
         // Find non point options.
         const nonPointRs = this.findNonPointSegments(currentAirport, currentDate, minDaysStay, maxDaysStay)
         rs.push(...nonPointRs)
@@ -158,14 +153,6 @@ export class TripSearch {
         }
 
         return toRet
-    }
-
-    sortResults(results: Availability[][]) {
-        results.sort((a, b) => {
-            var aTotal = a.reduce((acc, curr) => acc + Number(curr.JMileageCost), 0)
-            var bTotal = b.reduce((acc, curr) => acc + Number(curr.JMileageCost), 0)
-            return bTotal - aTotal
-        })
     }
 
     collapseResults(results: Availability[][]) {

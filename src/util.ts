@@ -1,9 +1,55 @@
 import { Availability, Route } from "./types"
+import { deserialize, serialize } from "v8";
+
+export const structuredClone = (obj: any) => {
+    return deserialize(serialize(obj));
+};
 
 // Please make this better (the whole time thing in this project). I'm too lazy.
 export function newDateWithoutTime() {
     const date = new Date()
     return new Date(date.toISOString().split('T')[0])
+}
+
+
+export function sortResults(results: Availability[][]) {
+    results.sort((a, b) => {
+        var aTotal = a.reduce((acc, curr) => acc + Number(curr.JMileageCost), 0)
+        var bTotal = b.reduce((acc, curr) => acc + Number(curr.JMileageCost), 0)
+        return bTotal - aTotal
+    })
+}
+
+export interface ItineraryPrice {
+    Y: Number
+    J: Number
+    F: Number
+    W: Number
+}
+
+
+export interface ExploreResult {
+    visitedAirports: string[]
+    possibleDates: string[]
+}
+
+export function priceItinerary(as: Availability[]): ItineraryPrice {
+    let sumY = 0
+    let sumJ = 0
+    let sumF = 0
+    let sumW = 0
+    for (const a of as) {
+        sumY += a.YMileageCost
+        sumJ += a.JMileageCost
+        sumF += a.FMileageCost
+        sumW += a.WMileageCost
+    }
+    return {
+        F: sumF,
+        J: sumJ,
+        W: sumW,
+        Y: sumY,
+    }
 }
 
 export function newAvailability(a: NewAvailabilityArgs): Availability {

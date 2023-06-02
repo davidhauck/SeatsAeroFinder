@@ -118,9 +118,23 @@ export class Database {
         await db.write()
     }
 
-    async find(from: string[], to: string[], opts: FindOptions): Promise<Availability[]> {
+    async findRoute(from: string[], to: string[], opts: FindOptions): Promise<Availability[]> {
         var response: Availability[] = []
         this.filteredForeach(from, to, (a: Availability) => {
+            if (
+                opts.class && this.containsService(a, opts.class, opts.directOnly) &&
+                (!opts.dateEnd || new Date(a.Date) <= opts.dateEnd) &&
+                (!opts.dateStart || new Date(a.Date) >= opts.dateStart)) {
+                response.push(a)
+            }
+        })
+
+        return response
+    }
+
+    async findAllLeavingAirport(from: string, opts: FindOptions): Promise<Availability[]> {
+        var response: Availability[] = []
+        this.filteredForeach([from], [], (a: Availability) => {
             if (
                 opts.class && this.containsService(a, opts.class, opts.directOnly) &&
                 (!opts.dateEnd || new Date(a.Date) <= opts.dateEnd) &&
@@ -145,7 +159,8 @@ export class Database {
         }
         const toIndexUnion = _.union(...toIndexes)
 
-        const intersection = _.intersection(fromIndexUnion, toIndexUnion)
+        // If there are no "to" airports, ignore them and return all flights from the "from" airports
+        const intersection = to.length > 0 ? _.intersection(fromIndexUnion, toIndexUnion) : fromIndexUnion
 
         for (const n of intersection) {
             callback(this.memoryDb[n])

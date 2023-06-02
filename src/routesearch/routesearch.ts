@@ -16,7 +16,7 @@ export class RouteSearch {
     async find() {
         console.log("from: ", this.opts.from)
         console.log("to: ", this.opts.to)
-        var r = await this.db.find(this.opts.from, this.opts.to, {
+        var r = await this.db.findRoute(this.opts.from, this.opts.to, {
             class: this.opts.class,
             directOnly: this.opts.direct,
             dateStart: this.opts.startDate ? new Date(this.opts.startDate) : undefined,
