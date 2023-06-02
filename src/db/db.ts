@@ -4,7 +4,7 @@ import { Availability } from '../types'
 import { JSONFile } from 'lowdb/node'
 import { sources } from "../constants.js"
 import got from 'got'
-import _ from "lodash"
+import _, { xor } from "lodash"
 
 export class Database {
     folderPath: string
@@ -14,6 +14,7 @@ export class Database {
     hasLoaded: boolean
     originIndexes: Map<string, number[]>
     destinationIndexes: Map<string, number[]>
+    globalFilters: GlobalFilter[] = []
 
     constructor(folderPath: string = "") {
         if (folderPath == "") {
@@ -27,7 +28,6 @@ export class Database {
         this.originIndexes = new Map<string, number[]>()
         this.destinationIndexes = new Map<string, number[]>()
         this.memoryDb = []
-        const end = Date.now()
     }
 
     async connect() {
@@ -65,8 +65,12 @@ export class Database {
         this.hasLoaded = true
         const end = Date.now()
         console.log("finished refreshing data ", end - start, "ms")
-        this.updateMemoryDb()
+        await this.updateMemoryDb()
+    }
 
+    async addGlobalFilter(f: GlobalFilter) {
+        this.globalFilters.push(f)
+        await this.updateMemoryDb()
     }
 
     updateMemoryDb() {
@@ -78,7 +82,12 @@ export class Database {
                 continue
             }
             for (const a of db.data) {
-                this.memoryDb.push(a)
+                if (!this.isFiltered(a)) {
+                    if (a.Route.DestinationAirport == "DXB" && this.globalFilters.length == 3) {
+                        console.log("HEHEH", a)
+                    }
+                    this.memoryDb.push(a)
+                }
             }
         }
         this.updateIndexes()
@@ -86,7 +95,20 @@ export class Database {
         console.log("finished building db in memory ", end - start, "ms")
     }
 
+    isFiltered(a: Availability): boolean {
+        for (const f of this.globalFilters) {
+            if (f.type == FilterType.ExcludeAirport) {
+                if (a.Route.DestinationAirport.toUpperCase() == f.value.toUpperCase() || a.Route.OriginAirport.toUpperCase() == f.value.toUpperCase()) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
     updateIndexes() {
+        this.originIndexes.clear()
+        this.destinationIndexes.clear()
         for (let i = 0; i < this.memoryDb.length; i++) {
             const a = this.memoryDb[i]
 
@@ -193,4 +215,13 @@ interface FindOptions {
     directOnly?: boolean
     dateStart?: Date
     dateEnd?: Date
+}
+
+interface GlobalFilter {
+    type: FilterType
+    value: string
+}
+
+export enum FilterType {
+    ExcludeAirport,
 }

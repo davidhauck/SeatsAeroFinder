@@ -1,6 +1,6 @@
 import _ from "lodash"
 import { addDays } from "../constants.js"
-import { Database } from "../db/db.js"
+import { Database, FilterType } from "../db/db.js"
 import { printAvailabilities, printExploreResults } from "../output.js"
 import { Availability, ExploreResult } from "../types.js"
 import { newDateWithoutTime, priceSummary, sortResults, structuredClone } from "../util.js"
@@ -30,6 +30,13 @@ export class Explore {
             numDestinations = Number.parseInt(this.opts.numDestinations)
             if (numDestinations <= 0) {
                 numDestinations = 1
+            }
+        }
+
+        if (this.opts.excludeAirports) {
+            for (const ea of this.opts.excludeAirports) {
+                console.log("adding filter: ", ea)
+                await this.db.addGlobalFilter({ type: FilterType.ExcludeAirport, value: ea })
             }
         }
 
@@ -114,7 +121,7 @@ export class Explore {
 
         const possibleNextLegs = await this.db.findAllLeavingAirport(currentAirport, findOptions)
         for (let i = 0; i < possibleNextLegs.length; i++) {
-            if (this.opts.ignoreRegions.includes(possibleNextLegs[i].Route.DestinationRegion)) {
+            if (this.opts.excludeRegions.includes(possibleNextLegs[i].Route.DestinationRegion)) {
                 possibleNextLegs.splice(i, 1)
                 i--
             }
@@ -143,7 +150,8 @@ export interface ExploreOptions {
     from: string[]
     direct: boolean
     nonPointSegments: string[]
-    ignoreRegions: string[]
+    excludeRegions: string[]
+    excludeAirports?: string[]
     numDestinations?: string
     minDaysStay?: string
     maxDaysStay?: string
