@@ -150,7 +150,7 @@ $npm run tripsearch -- --from ord --to add zrh --class J -d
 ├────────────┼──────┼─────┼───────────┼────────┼───────┼─────────┤
 │ 2023-06-21 │ ZRH  │ ORD │ lifemiles │ 3      │ 63000 │ true    │
 └────────────┴──────┴─────┴───────────┴────────┴───────┴─────────┘
-Time:  276
+Num results: 4
 ```
 
 Note that the "best" flights are attempted to be listed last.
