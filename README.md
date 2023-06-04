@@ -2,7 +2,9 @@
 
 [seats.aero](seats.aero) is one of the best tools to find award ticket availability. Specifically, it's great to search specific routes for specific periods of time. If, however, you want to go on a trip with flexible dates and flexible destinations, it can take a while to search all of the different dates and routes that you might be interested in. Additionally, it can be time consuming to search both legs of a trip at the same time. There may be outbound availability but no return availability.
 
-This tool is meant to generate trip ideas based off of a departure airport(s) using seats.aero data. 
+This tool is meant to generate trip ideas based off of a departure airport(s) using seats.aero data.
+
+There are probably a lot of bugs here as I wrote no tests and wrote the code quickly. Feel free to file issues as you come across them.
 
 ## Installation
 
@@ -157,13 +159,15 @@ Note that the "best" flights are attempted to be listed last.
 
 ### Explore
 
+Searches for any itineraries available from origin airports. This is useful if both dates and destinations are flexible. Note that using n > 2 may take a long time as this just does a simple brute force algorithm.
+
 `npm run explore -f {airport_codes}`
 
 <b>Required</b>
 * --from {value...} (-f): List of airports to search from
 
 <b> Optional </b>
-* --num-destinations {value} (-n): Number of destinations to visit on the trip.
+* --num-destinations {value} (-n): Number of destinations to visit on the trip. Defaults to 1.
 * --exclude-airports {value...} (-e): Exclude airports from search.
 * --exclude-regions {value...}: Exclude regions from search.
 * --direct (-d): Only search for direct flights.
