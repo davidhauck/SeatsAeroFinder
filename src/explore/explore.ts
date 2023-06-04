@@ -87,6 +87,10 @@ export class Explore {
                 visitedAirports: itin,
                 examplePrice: priceSummary(route, this.opts.direct, this.opts.class),
             })
+
+            if (itin.includes("ADD") && itin.includes("ZRH")) {
+                printAvailabilities(route, ["J"])
+            }
         }
 
         return toRet

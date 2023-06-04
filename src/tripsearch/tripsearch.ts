@@ -82,10 +82,10 @@ export class TripSearch {
     }
 
     async findNextLeg(currentAirport: string, nextAirports: Map<string, AirportStop>, currentDate: Date, minDaysStay?: number, maxDaysStay?: number): Promise<Availability[][]> {
-        if (!minDaysStay) {
+        if (minDaysStay === undefined) {
             minDaysStay = 7
         }
-        if (!maxDaysStay) {
+        if (maxDaysStay === undefined) {
             maxDaysStay = 14
         }
         const findOptions = {
