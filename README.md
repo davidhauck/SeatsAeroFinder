@@ -161,6 +161,8 @@ Num results: 4
 
 Note that the "best" flights are attempted to be listed last.
 
+Once you have a trip plan that you're interested in, it's best to check seats.aero to ensure that the data is fresh. This script only updates data from seats.aero once per day. Visit https://seats.aero/search for each leg of the journey and make sure the flights are all available and look correct.
+
 ## Docs
 
 ### Explore
