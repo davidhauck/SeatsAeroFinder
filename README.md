@@ -115,7 +115,7 @@ After looking through the options, I noticed a particular trip that looks intere
 ORD-ADD-ZRH-ORD │ 2023-06-06                                          │ 90000/J/aeroplan - 45000/J/aeroplan - 63000/J/lifemiles
 ```
 
-To get more information about this itinerary, I perform a trip search:
+To get more information about this itinerary, I perform a trip search. Note that JSeats=0 doesn't mean that there are no seats, just that there is no data around how many seats are available (but it's >=1).
 
 ```
 $npm run tripsearch -- --from ord --to add zrh --class J -d
