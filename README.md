@@ -10,7 +10,13 @@ There are probably a lot of bugs here as I wrote no tests and wrote the code qui
 
 * Install node and npm: https://nodejs.org/en/download
 
+* Install git: https://git-scm.com/downloads
+
+* Open a command prompt and run the following commands in a new folder:
+
 * git clone https://github.com/davidhauck/SeatsAeroFinder.git
+
+* cd SeatsAeroFinder
 
 * npm i
 
