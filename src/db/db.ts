@@ -5,6 +5,7 @@ import { JSONFile } from 'lowdb/node'
 import { sources } from "../constants.js"
 import got from 'got'
 import _, { xor } from "lodash"
+import { existsSync, mkdirSync } from "fs"
 
 export class Database {
     folderPath: string
@@ -19,6 +20,9 @@ export class Database {
     constructor(folderPath: string = "") {
         if (folderPath == "") {
             folderPath = os.homedir() + "/SeatsAeroFinder/"
+            if (!existsSync(folderPath)) {
+                mkdirSync(folderPath);
+            }
         }
         this.folderPath = folderPath
         const metadataAdapter = new JSONFile<Metadata>(this.folderPath + "metadata.json")
