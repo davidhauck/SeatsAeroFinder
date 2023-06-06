@@ -125,9 +125,11 @@ export class Explore {
 
         const possibleNextLegs = await this.db.findAllLeavingAirport(currentAirport, findOptions)
         for (let i = 0; i < possibleNextLegs.length; i++) {
-            if (this.opts.excludeRegions.includes(possibleNextLegs[i].Route.DestinationRegion)) {
-                possibleNextLegs.splice(i, 1)
-                i--
+            if (this.opts.excludeRegions) {
+                if (this.opts.excludeRegions.includes(possibleNextLegs[i].Route.DestinationRegion)) {
+                    possibleNextLegs.splice(i, 1)
+                    i--
+                }
             }
         }
 
@@ -154,7 +156,7 @@ export interface ExploreOptions {
     from: string[]
     direct: boolean
     nonPointSegments: string[]
-    excludeRegions: string[]
+    excludeRegions?: string[]
     excludeAirports?: string[]
     numDestinations?: string
     minDaysStay?: string
