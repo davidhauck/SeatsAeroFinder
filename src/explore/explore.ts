@@ -12,6 +12,8 @@ export class Explore {
     nonPointSegments = new Map<string, string[]>()
     minDaysStay: number
     maxDaysStay: number
+    fromAirportsWithoutWeight: string[] = []
+    fromAirportWeights: Map<string, number> = new Map<string, number>()
 
     constructor(db: Database, opts: ExploreOptions) {
         this.db = db
@@ -20,6 +22,16 @@ export class Explore {
         this.opts.class = this.opts.class.map((x) => x.toUpperCase())
         this.minDaysStay = this.opts.minDaysStay ? Number.parseInt(this.opts.minDaysStay) : 7
         this.maxDaysStay = this.opts.maxDaysStay ? Number.parseInt(this.opts.maxDaysStay) : 14
+        for (const a of this.opts.from) {
+            if (a.includes(":")) {
+                const parts = a.split(":")
+                this.fromAirportsWithoutWeight.push(parts[0])
+                this.fromAirportWeights.set(parts[0], Number.parseInt(parts[1]))
+            } else {
+                this.fromAirportsWithoutWeight.push(a)
+                this.fromAirportWeights.set(a, 1)
+            }
+        }
     }
 
     async explore() {
@@ -47,7 +59,7 @@ export class Explore {
         await this.db.addGlobalFilters(eas)
 
         const results: Availability[][] = []
-        for (const f of this.opts.from) {
+        for (const f of this.fromAirportsWithoutWeight) {
             const options = await this.findNextDestination(f, numDestinations, newDateWithoutTime(), 0, 500)
             results.push(...options)
         }
@@ -100,7 +112,59 @@ export class Explore {
             }
         }
 
+        this.collapseLowerPriorityAirports(toRet)
+
         return toRet
+    }
+
+    collapseLowerPriorityAirports(ers: ExploreResult[]) {
+        for (let i = 0; i < ers.length; i++) {
+            for (let j = i + 1; j < ers.length; j++) {
+                if (ers[i].visitedAirports.length != ers[j].visitedAirports.length) {
+                    continue
+                }
+                let sameAirports = true
+                for (let k = 1; k < ers[i].visitedAirports.length - 1; k++) {
+                    if (ers[i].visitedAirports[k] != ers[j].visitedAirports[k]) {
+                        sameAirports = false
+                        break
+                    }
+                }
+                if (!sameAirports) {
+                    continue
+                }
+
+                let iFirstWeight = this.fromAirportWeights.get(ers[i].visitedAirports[0])
+                if (iFirstWeight === undefined) {
+                    iFirstWeight = 1
+                }
+                let iLastWeight = this.fromAirportWeights.get(ers[i].visitedAirports[ers[i].visitedAirports.length - 1])
+                if (iLastWeight === undefined) {
+                    iLastWeight = 1
+                }
+                let jFirstWeight = this.fromAirportWeights.get(ers[j].visitedAirports[0])
+                if (jFirstWeight === undefined) {
+                    jFirstWeight = 1
+                }
+                let jLastWeight = this.fromAirportWeights.get(ers[j].visitedAirports[ers[i].visitedAirports.length - 1])
+                if (jLastWeight === undefined) {
+                    jLastWeight = 1
+                }
+
+                if (iFirstWeight + iLastWeight == jFirstWeight + jLastWeight) {
+                    continue
+                }
+
+                if (iFirstWeight + iLastWeight > jFirstWeight + jLastWeight) {
+                    ers.splice(i, 1)
+                    i--
+                    break
+                }
+
+                ers.splice(j, 1)
+                j--
+            }
+        }
     }
 
     getItineraryForAvailabilities(as: Availability[]): string[] {
@@ -122,7 +186,7 @@ export class Explore {
 
         const toRet: Availability[][] = []
         if (numDestinationsLeft == 0) {
-            const finalLegs = await this.db.findRoute([currentAirport], this.opts.from, findOptions)
+            const finalLegs = await this.db.findRoute([currentAirport], this.fromAirportsWithoutWeight, findOptions)
             for (const l of finalLegs) {
                 toRet.push([l])
             }

@@ -172,7 +172,7 @@ Searches for any itineraries available from origin airports. This is useful if b
 `npm run explore -f {airport_codes}`
 
 <b>Required</b>
-* --from {value...} (-f): List of airports to search from
+* --from {value...} (-f): List of airports to search from. Optionally add weights to each airport with a colon(:), e.g. `--from sea:1 sfo:2`. Weight defaults to 1 if omitted. Weights are described more below.
 
 <b> Optional </b>
 * --num-destinations {value} (-n): Number of destinations to visit on the trip. Defaults to 1.
@@ -185,7 +185,21 @@ Searches for any itineraries available from origin airports. This is useful if b
 
 <b>Full Example</b>
 
-`explore -f sea sfo lax -n 2 -e doh lhr --exclude-regions "North America" --exclude-sources alaska united -d --folder /home/my-path/seatsaerodata -c J F`
+`explore -f sea sfo:2 lax:2 -n 2 -e doh lhr --exclude-regions "North America" --exclude-sources alaska united -d --folder /home/my-path/seatsaerodata -c J F`
+
+<b> Weights </b>
+
+Routes that are the same without taking the *from* destinations into account will prioritize using airports with a lower priority.
+
+For example, take into account the full example above with the *-f* field containing `-f sea sfo:2 lax:2`. In this case, if there is a route for both:
+
+`SEA->LHR->SEA`
+
+and 
+
+`SFO->LHR->SFO`
+
+then the results will *only* show the SEA->LHR->SEA route since the airports are listed at a lower priority (sea has a default priority of 1 and sfo has a priority of 2). This does not take into account trip price, so SFO->LHR->SFO would still be removed even if it is a cheaper price. If priorities are the same between routes, all of them will be returned. This means that omitting priority for all airports will return every possible result.
 
 ### Trip Search
 
