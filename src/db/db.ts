@@ -72,8 +72,8 @@ export class Database {
         await this.updateMemoryDb()
     }
 
-    async addGlobalFilter(f: GlobalFilter) {
-        this.globalFilters.push(f)
+    async addGlobalFilters(fs: GlobalFilter[]) {
+        this.globalFilters.push(...fs)
         await this.updateMemoryDb()
     }
 
@@ -87,9 +87,6 @@ export class Database {
             }
             for (const a of db.data) {
                 if (!this.isFiltered(a)) {
-                    if (a.Route.DestinationAirport == "DXB" && this.globalFilters.length == 3) {
-                        console.log("HEHEH", a)
-                    }
                     this.memoryDb.push(a)
                 }
             }
@@ -103,6 +100,11 @@ export class Database {
         for (const f of this.globalFilters) {
             if (f.type == FilterType.ExcludeAirport) {
                 if (a.Route.DestinationAirport.toUpperCase() == f.value.toUpperCase() || a.Route.OriginAirport.toUpperCase() == f.value.toUpperCase()) {
+                    return true
+                }
+            }
+            if (f.type == FilterType.ExcludeSource) {
+                if (a.Source.toUpperCase() == f.value.toUpperCase()) {
                     return true
                 }
             }
@@ -221,11 +223,12 @@ interface FindOptions {
     dateEnd?: Date
 }
 
-interface GlobalFilter {
+export interface GlobalFilter {
     type: FilterType
     value: string
 }
 
 export enum FilterType {
     ExcludeAirport,
+    ExcludeSource,
 }

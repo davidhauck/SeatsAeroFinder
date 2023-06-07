@@ -1,6 +1,6 @@
 import _ from "lodash"
 import { addDays } from "../constants.js"
-import { Database, FilterType } from "../db/db.js"
+import { Database, FilterType, GlobalFilter } from "../db/db.js"
 import { printAvailabilities, printExploreResults } from "../output.js"
 import { Availability, ExploreResult } from "../types.js"
 import { newDateWithoutTime, priceSummary, sortResults, structuredClone } from "../util.js"
@@ -33,11 +33,18 @@ export class Explore {
             }
         }
 
+        const eas: GlobalFilter[] = []
         if (this.opts.excludeAirports) {
             for (const ea of this.opts.excludeAirports) {
-                await this.db.addGlobalFilter({ type: FilterType.ExcludeAirport, value: ea })
+                eas.push({ type: FilterType.ExcludeAirport, value: ea })
             }
         }
+        if (this.opts.excludeSources) {
+            for (const es of this.opts.excludeSources) {
+                eas.push({ type: FilterType.ExcludeSource, value: es })
+            }
+        }
+        await this.db.addGlobalFilters(eas)
 
         const results: Availability[][] = []
         for (const f of this.opts.from) {
@@ -158,6 +165,7 @@ export interface ExploreOptions {
     nonPointSegments: string[]
     excludeRegions?: string[]
     excludeAirports?: string[]
+    excludeSources?: string[]
     numDestinations?: string
     minDaysStay?: string
     maxDaysStay?: string

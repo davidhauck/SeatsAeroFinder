@@ -178,13 +178,14 @@ Searches for any itineraries available from origin airports. This is useful if b
 * --num-destinations {value} (-n): Number of destinations to visit on the trip. Defaults to 1.
 * --exclude-airports {value...} (-e): Exclude airports from search.
 * --exclude-regions {value...}: Exclude regions from search.
+* --exclude-sources {value...}: Exclude sources (e.g. alaska, lifemiles) from search.
 * --direct (-d): Only search for direct flights.
 * --folder {value}: Folder to store flight data.
 * --class {value...} (-c): List of classes to search. Defaults to all of Y, W, J, and F.
 
 <b>Full Example</b>
 
-`explore -f sea sfo lax -n 2 -e doh lhr --exclude-regions "North America" -d --folder /home/my-path/seatsaerodata -c J F`
+`explore -f sea sfo lax -n 2 -e doh lhr --exclude-regions "North America" --exclude-sources alaska united -d --folder /home/my-path/seatsaerodata -c J F`
 
 ### Trip Search
 
