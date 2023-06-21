@@ -16,8 +16,8 @@
     "typescript": "^5.0.4"
   },
   "scripts": {
-    "routesearch": "ts-node-esm src/index.ts routesearch",
-    "tripsearch": "ts-node-esm src/index.ts tripsearch",
-    "explore": "ts-node-esm src/index.ts explore"
+    "routesearch": "npx tsx src/index.ts routesearch",
+    "tripsearch": "npx tsx src/index.ts tripsearch",
+    "explore": "npx tsx src/index.ts explore"
   }
 }
