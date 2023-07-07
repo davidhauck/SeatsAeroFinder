@@ -9,6 +9,7 @@ export const sources = [
     "united",
     "virginatlantic",
     "alaska",
+    "velocity",
 ]
 
 export function addDays(date: Date, days: number): Date {
